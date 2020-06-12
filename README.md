@@ -10,4 +10,5 @@ Run the `tf2_voice_ban_bots.py` file. It will grab the list of bots and generate
 
 ## Requirements
 Python 3.x or later
+
 'requests' Python module
