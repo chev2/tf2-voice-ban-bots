@@ -6,7 +6,9 @@ Essentially what this allows for is the replacement of a user's current voice_ba
 Using this tool will not give you a VAC ban, nor should editing the list of muted players in your TF2 directory.
 
 ## How to use
-Run the `tf2_voice_ban_bots.py` file. It will grab the list of bots and generate a voice_ban.dt file if you wish to do so.
+Run the `tf2_voice_ban_bots.py` file. `py -3 tf2_voice_ban_bots.py`
+
+It will grab the list of bots and generate a voice_ban.dt file if you wish to do so.
 
 ## Requirements
 Python 3.x or later
