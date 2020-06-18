@@ -3,50 +3,63 @@ import os #path/file opening
 import re #regex
 import requests #http requests
 
-tf2_playerlist_url = "https://raw.githubusercontent.com/PazerOP/tf2_bot_detector/master/staging/cfg/playerlist.official.json" #Pazer's list of bots
-tf2_playerlist_url_2 = "https://raw.githubusercontent.com/chev2/tf2-voice-ban-bots/master/voice_ban_users.json" #My list of bots
+tf2_botlist_urls = {
+    "Pazer": "https://raw.githubusercontent.com/PazerOP/tf2_bot_detector/master/staging/cfg/playerlist.official.json", #Pazer's list of bots
+    "Chev": "https://raw.githubusercontent.com/chev2/tf2-voice-ban-bots/master/voice_ban_users.json", #My list of bots
+    "wgetJane": "https://gist.githubusercontent.com/wgetJane/0bc01bd46d7695362253c5a2fa49f2e9/raw/fefb98e0e10bbab8ff1b38e96adbaabf4a8db94f/bot_list.txt" #wgetJane's list of bots
+}
 github_headers = {
     'User-Agent': 'tf2-voice-ban-bots/1.0 (Python script - written by github.com/chev2)'
 }
+
+steamID64IDEnt = 76561197960265728
 steamid3_regex = r'(\[U:1:\d+\])'
+wgetjane_list_regex = r'\n(\d+)'
 cwd = os.getcwd()
 players = []
 
+def SteamID64To3(id):
+    id3base = int(id) - steamID64IDEnt
+    return "[U:1:{0}]".format(id3base)
+
 print("Attempting connection to bots list...")
+for url in tf2_botlist_urls:
+    cur_players = []
 
+    print(f"Attempting connection to {url}'s bot list...")
+    r = requests.get(tf2_botlist_urls[url], headers=github_headers)
+    if r.status_code != 200:
+        print(f"HTTP Error {r.status_code} to {url}'s list has occurred.")
+    else:
+        print(f"Connection to bot {url}'s bot list successful.")
 
-#Pazer's bot list
-r = requests.get(tf2_playerlist_url, headers=github_headers)
+    if url == "Pazer":
+        js = r.json()
 
-if r.status_code != 200:
-    print(f"HTTP Error {r.status_code} to Pazer's bot list has occured.")
-else:
-    print("Connection to Pazer's bot list successful.")
+        for player in js["players"]:
+            cur_players.append(player["steamid"])
 
-json_info = r.json()
+        players += cur_players
+    elif url == "Chev":
+        js = r.json()
 
-for player in json_info["players"]:
-    players.append(player["steamid"])
+        for player in js:
+            cur_players.append(player)
+        players += cur_players
+    elif url == "wgetJane":
+        txt = r.content
 
-print("{0} bots found in Pazer's list.".format(len(players)))
+        for player64 in re.finditer(wgetjane_list_regex, txt.decode('UTF-8')):
+            player = SteamID64To3(player64.group(1))
+            cur_players.append(player)
 
+        players += cur_players
 
-#My bot list
-r = requests.get(tf2_playerlist_url_2, headers=github_headers)
+    print(f"{format(len(cur_players), ',d')} bots found in {url}'s list.")
 
-if r.status_code != 200:
-    print(f"HTTP Error {r.status_code} to Chev's bot list has occured.")
-else:
-    print("Connection to Chev's bot list successful.")
+players = list(set(players)) #remove duplicates in case there are multiple of the same ID in any list
 
-json_info = r.json()
-
-for player in json_info:
-    players.append(player)
-
-print("{0} bots found in Chev's list.".format(len(json_info)))
-
-print("{0} bots found in total.".format(len(players)))
+print(f"{format(len(players), ',d')} bots found in total.")
 
 mergefilequery = None
 path = None
@@ -76,7 +89,7 @@ players = set(players) #remove duplicates in case of merging
 
 players_as_string = "\x01\0\0\0" + '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'.join(players) + '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' #this is how the voice_ban.dt file is patterned
 
-print("{0} muted players in total. Removed {1} duplicates.".format(len(players), dupe_number))
+print(f"{format(len(players), ',d')} muted players in total. Removed {dupe_number} duplicates.")
 
 writetofile = None
 
