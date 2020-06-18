@@ -1,31 +1,52 @@
-import os #path/file opening
 import json #json parse
-import requests #http requests
+import os #path/file opening
 import re #regex
+import requests #http requests
 
 tf2_playerlist_url = "https://raw.githubusercontent.com/PazerOP/tf2_bot_detector/master/staging/cfg/playerlist.official.json" #Pazer's list of bots
+tf2_playerlist_url_2 = "https://raw.githubusercontent.com/chev2/tf2-voice-ban-bots/master/voice_ban_users.json" #My list of bots
 github_headers = {
     'User-Agent': 'tf2-voice-ban-bots/1.0 (Python script - written by github.com/chev2)'
 }
 steamid3_regex = r'(\[U:1:\d+\])'
 cwd = os.getcwd()
+players = []
 
 print("Attempting connection to bots list...")
 
+
+#Pazer's bot list
 r = requests.get(tf2_playerlist_url, headers=github_headers)
 
 if r.status_code != 200:
-    print("HTTP Error {0} has occured".format(r.status_code))
+    print(f"HTTP Error {r.status_code} to Pazer's bot list has occured.")
 else:
-    print("Connection successful")
+    print("Connection to Pazer's bot list successful.")
 
 json_info = r.json()
 
-players = []
 for player in json_info["players"]:
     players.append(player["steamid"])
 
-print("{0} bots found in json".format(len(players)))
+print("{0} bots found in Pazer's list.".format(len(players)))
+
+
+#My bot list
+r = requests.get(tf2_playerlist_url_2, headers=github_headers)
+
+if r.status_code != 200:
+    print(f"HTTP Error {r.status_code} to Chev's bot list has occured.")
+else:
+    print("Connection to Chev's bot list successful.")
+
+json_info = r.json()
+
+for player in json_info:
+    players.append(player)
+
+print("{0} bots found in Chev's list.".format(len(json_info)))
+
+print("{0} bots found in total.".format(len(players)))
 
 mergefilequery = None
 path = None
@@ -70,4 +91,3 @@ while writetofile not in ("y", "n"):
         print("Wrote players to {0}\\voice_ban.dt".format(cwd))
     elif writetofile.lower() == "n":
         print("Exitting...")
-
