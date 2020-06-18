@@ -3,7 +3,7 @@ import json #json parse
 import requests #http requests
 import re #regex
 
-tf2_playerlist_url = "https://raw.githubusercontent.com/PazerOP/tf2_bot_detector/master/tf2_bot_detector/cfg/playerlist.official.json" #Pazer's list of bots
+tf2_playerlist_url = "https://raw.githubusercontent.com/PazerOP/tf2_bot_detector/master/staging/cfg/playerlist.official.json" #Pazer's list of bots
 github_headers = {
     'User-Agent': 'tf2-voice-ban-bots/1.0 (Python script - written by github.com/chev2)'
 }
@@ -19,7 +19,7 @@ if r.status_code != 200:
 else:
     print("Connection successful")
 
-json_info = json.loads(r.content)
+json_info = r.json()
 
 players = []
 for player in json_info["players"]:
