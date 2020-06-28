@@ -85,7 +85,7 @@ while mergefilequery not in ("y", "n"):
         print("Skipping merge step...")
 
 dupe_number = len(players) - len(set(players)) #get number of duplicates
-players = set(players) #remove duplicates in case of merging
+players = sorted(set(players), key=lambda x: len(x)) #remove duplicates in case of merging, also sort by ID length (the voice_ban.dt file will break if not sorted)
 
 players_as_string = "\x01\0\0\0" + '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'.join(players) + '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' #this is how the voice_ban.dt file is patterned
 
