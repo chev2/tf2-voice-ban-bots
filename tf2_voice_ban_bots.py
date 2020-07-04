@@ -13,8 +13,11 @@ github_headers = {
 }
 
 steamID64IDEnt = 76561197960265728
+steamIDlen = 32
+
 steamid3_regex = r'(\[U:1:\d+\])'
 wgetjane_list_regex = r'\n(\d+)'
+
 cwd = os.getcwd()
 players = []
 
@@ -87,7 +90,12 @@ while mergefilequery not in ("y", "n"):
 dupe_number = len(players) - len(set(players)) #get number of duplicates
 players = sorted(set(players), key=lambda x: len(x)) #remove duplicates in case of merging, also sort by ID length (the voice_ban.dt file will break if not sorted)
 
-players_as_string = "\x01\0\0\0" + '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'.join(players) + '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' #this is how the voice_ban.dt file is patterned
+for player in range(0, len(players)):
+    players[player] += "\0"*(steamIDlen-len(players[player])) #steam ID length plus whitespace should always equal 32 characters
+
+players_as_string = "\x01\0\0\0" + ''.join(players) #this is how the voice_ban.dt file is patterned
+
+print(players_as_string)
 
 print(f"{format(len(players), ',d')} muted players in total. Removed {dupe_number} duplicates.")
 
@@ -96,9 +104,9 @@ writetofile = None
 while writetofile not in ("y", "n"):
     writetofile = input("Write the muted bots to a new voice_ban.dt file? [y/n]: ")
     if writetofile.lower() == "y":
-        with open("voice_ban.dt", "w") as file: #write muted players
+        with open("voice_ban.dt", "wb") as file: #write muted players
             file.seek(0) #go to beginning of the file
-            file.write(players_as_string) #write muted players
+            file.write(str.encode(players_as_string)) #write muted players
             file.truncate()
 
         print("Wrote players to {0}\\voice_ban.dt".format(cwd))
