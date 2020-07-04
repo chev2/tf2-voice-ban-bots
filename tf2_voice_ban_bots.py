@@ -95,8 +95,6 @@ for player in range(0, len(players)):
 
 players_as_string = "\x01\0\0\0" + ''.join(players) #this is how the voice_ban.dt file is patterned
 
-print(players_as_string)
-
 print(f"{format(len(players), ',d')} muted players in total. Removed {dupe_number} duplicates.")
 
 writetofile = None
