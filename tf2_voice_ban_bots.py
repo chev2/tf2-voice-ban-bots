@@ -1,4 +1,3 @@
-import json #json parse
 import os #path/file opening
 import re #regex
 import requests #http requests
